@@ -7,8 +7,7 @@ import torch.nn.utils.parametrizations as parametrizations
 
 """
 Here is the current version of GeometryExtractor and GeoExtractorTrainer for further experiments. Note that during the project we used older versions 
-and training loops in a 'makeshift' notebooks. These code can be found in the notebooks folder. From now on, we will use this version to not introduce 
-any further confusion.
+and training loops in a 'makeshift' notebooks. These code can be found in the notebooks folder. From now on, we will use this version for strick reproducibility.
 """
 
 
