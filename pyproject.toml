@@ -5,10 +5,13 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.14"
 dependencies = [
+    "esda>=2.10.0",
     "faiss-cpu>=1.13.2",
+    "geopandas>=1.1.4",
     "ipympl>=0.10.0",
     "ipywidgets>=8.1.8",
     "jupyter>=1.1.1",
+    "libpysal>=4.15.0",
     "matplotlib>=3.10.8",
     "numpy>=2.4.4",
     "pandas>=3.0.2",
