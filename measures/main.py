@@ -131,7 +131,7 @@ def run():
 
     # --- Pass 3: model transformations per seed, reusing cached baselines ---
     model_records = []
-    baseline_records = []
+    baseline_records = []  # each entry: one baseline run for one seed-iteration
 
     for fi, csv_path in enumerate(csv_files):
         seed_name = Path(csv_path).stem
@@ -201,19 +201,38 @@ def run():
         logger.error("No model results were produced.")
         sys.exit(1)
 
+    # --- Save model results ---
     df_model = pd.DataFrame(model_records)
     df_model.to_csv(out_dir / f"{args.transformation}_results.csv", index=False)
+
+    # --- Save baseline results (exploded) ---
+    baseline_rows = []
+    for br in baseline_records:
+        n = len(br["moran"])
+        for i in range(n):
+            row = {
+                "seed": br["seed"],
+                "iteration": br["iteration"],
+                "run": i,
+                "moran_I": br["moran"][i],
+            }
+            if cfg.get("circular"):
+                row["circ_corr"] = br["circ"][i]
+                row["mrl"] = br["mrl"][i]
+            baseline_rows.append(row)
+    df_baseline = pd.DataFrame(baseline_rows)
+    df_baseline.to_csv(out_dir / f"{args.transformation}_baseline_results.csv", index=False)
 
     # --- Violin data ---
     vdata = {
         "moran_model": df_model["moran_I"].tolist(),
-        "moran_baseline": [v for b in baseline_records for v in b["moran"]],
+        "moran_baseline": df_baseline["moran_I"].tolist(),
     }
     if cfg.get("circular"):
         vdata["circ_model"] = df_model["circ_corr"].tolist()
-        vdata["circ_baseline"] = [v for b in baseline_records for v in b["circ"]]
+        vdata["circ_baseline"] = df_baseline["circ_corr"].tolist()
         vdata["mrl_model"] = df_model["mrl"].tolist()
-        vdata["mrl_baseline"] = [v for b in baseline_records for v in b["mrl"]]
+        vdata["mrl_baseline"] = df_baseline["mrl"].tolist()
 
     plot_violins(vdata, cfg["name"], str(out_dir / f"{args.transformation}_violins.png"))
 
@@ -225,14 +244,36 @@ def run():
     }
     logger.info("\n=== SUMMARY ===")
 
+    def _summarize(vals, key, pretty):
+        vals = np.asarray(vals)
+        vals = vals[~np.isnan(vals)]
+        if len(vals) == 0:
+            return
+
+        # CI for the mean (bootstrap)
+        lo_mean, hi_mean = bootstrap_ci(vals)
+        # Percentile interval for individual observations
+        p_lo, p_hi = np.percentile(vals, [2.5, 97.5])
+
+        summary[f"{key}_mean"] = round(float(vals.mean()), 4)
+        summary[f"{key}_ci95_mean"] = [round(lo_mean, 4), round(hi_mean, 4)]
+        summary[f"{key}_pct2.5"] = round(float(p_lo), 4)
+        summary[f"{key}_pct97.5"] = round(float(p_hi), 4)
+
+        logger.info(f"{pretty}:")
+        logger.info(f"  mean={vals.mean():.4f}, 95% CI(mean)=[{lo_mean:.4f}, {hi_mean:.4f}]")
+        logger.info(f"  2.5th pct={p_lo:.4f}, 97.5th pct={p_hi:.4f}  ← individual obs spread")
+
     for col, pretty in [("moran_I", "Moran\'s I"), ("circ_corr", "Circular Corr"), ("mrl", "MRL")]:
         if col not in df_model.columns:
             continue
-        vals = df_model[col].dropna()
-        lo, hi = bootstrap_ci(vals)
-        summary[f"{col}_mean"] = round(float(vals.mean()), 4)
-        summary[f"{col}_ci95"] = [round(lo, 4), round(hi, 4)]
-        logger.info(f"{pretty}: mean={vals.mean():.4f}, 95% CI=[{lo:.4f}, {hi:.4f}]")
+        _summarize(df_model[col].dropna().values, col, pretty)
+
+    # Baseline summaries too
+    for col, pretty in [("moran_I", "Baseline Moran\'s I"), ("circ_corr", "Baseline Circ Corr"), ("mrl", "Baseline MRL")]:
+        if col not in df_baseline.columns:
+            continue
+        _summarize(df_baseline[col].dropna().values, f"base_{col}", pretty)
 
     # Wilcoxon tests (model vs cached baseline mean, paired)
     w, p = wilcoxon(df_model["moran_I"], df_model["base_moran_mean"], alternative="greater")
