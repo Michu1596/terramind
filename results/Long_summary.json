@@ -1,0 +1,21 @@
+{
+  "transformation": "Long",
+  "seeds": 98,
+  "skipped_iterations": [],
+  "moran_I_mean": 0.1568,
+  "moran_I_ci95_mean": [
+    0.1489,
+    0.1652
+  ],
+  "moran_I_pct2.5": 0.0513,
+  "moran_I_pct97.5": 0.3603,
+  "circ_corr_mean": 0.3148,
+  "circ_corr_ci95_mean": [
+    0.3038,
+    0.326
+  ],
+  "circ_corr_pct2.5": 0.101,
+  "circ_corr_pct97.5": 0.5588,
+  "mrl_mean": 0.1962,
+  "mrl_ci95_mean": [
+    

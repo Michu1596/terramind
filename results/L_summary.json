@@ -1,0 +1,12 @@
+{
+  "transformation": "L",
+  "seeds": 67,
+  "skipped_iterations": [],
+  "moran_I_mean": 0.4183,
+  "moran_I_ci95": [
+    0.4093,
+    0.4268
+  ],
+  "moran_wilcoxon_W": 81003.0,
+  "moran_wilcoxon_p": 0.0
+}
