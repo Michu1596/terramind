@@ -1,0 +1,21 @@
+{
+  "transformation": "H",
+  "seeds": 98,
+  "skipped_iterations": [],
+  "moran_I_mean": 0.8052,
+  "moran_I_ci95_mean": [
+    0.7999,
+    0.8101
+  ],
+  "moran_I_pct2.5": 0.7041,
+  "moran_I_pct97.5": 0.9167,
+  "base_moran_I_mean": 0.122,
+  "base_moran_I_ci95_mean": [
+    0.1215,
+    0.1225
+  ],
+  "base_moran_I_pct2.5": 0.0463,
+  "base_moran_I_pct97.5": 0.2706,
+  "moran_wilcoxon_W": 173166.0,
+  "moran_wilcoxon_p": 0.0
+}
