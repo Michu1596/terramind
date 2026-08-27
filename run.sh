@@ -12,5 +12,5 @@ seeds=(1 2 3 4 5 6 7 8 9 10
 
 for s in "${seeds[@]}"
 do
-  uv run python run.py --property T --seed $s --output-id seed${s} --latent-idx 2 4 6 8 10 12 --device cpu
+  uv run python run.py --property Long --seed $s --output-id seed${s} --latent-idx 2 4 6 8 10 12 --device cpu
 done
